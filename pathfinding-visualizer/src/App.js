@@ -9,49 +9,40 @@ const NUM_COLS = 50;
 
 function App() {
   const [grid, setGrid] = useState([]);
-  // Armazena coordenadas ao invés de objetos para manter referência correta
-  const [startPos, setStartPos] = useState(null); // {row, col}
-  const [endPos, setEndPos] = useState(null);     // {row, col}
-  const [mode, setMode] = useState('start'); // 'start', 'end', 'wall'
+  const [startPos, setStartPos] = useState(null);
+  const [endPos, setEndPos] = useState(null);
+  const [mode, setMode] = useState('start');
   const [dijkstraResult, setDijkstraResult] = useState(null);
   const [astarResult, setAstarResult] = useState(null);
 
   useEffect(() => {
-    setGrid(initializeGrid());
+    setGrid(initGrid());
   }, []);
 
-  // Cria grid inicial
-  function initializeGrid() {
-    return Array.from({ length: NUM_ROWS }, (_, row) =>
+  const initGrid = () =>
+    Array.from({ length: NUM_ROWS }, (_, row) =>
       Array.from({ length: NUM_COLS }, (_, col) => createNode(row, col))
     );
-  }
 
-  // Cria nó base
-  function createNode(row, col) {
-    return {
-      row,
-      col,
-      isStart: false,
-      isEnd: false,
-      isWall: false,
-      isVisited: false,
-      isPath: false,
-      distance: Infinity,
-      previousNode: null,
-      gCost: Infinity,
-      fCost: Infinity,
-    };
-  }
+  const createNode = (row, col) => ({
+    row,
+    col,
+    isStart: false,
+    isEnd: false,
+    isWall: false,
+    isVisited: false,
+    isPath: false,
+    distance: Infinity,
+    previousNode: null,
+    gCost: Infinity,
+    fCost: Infinity,
+  });
 
-  // Lida com clique no grid de acordo com modo atual
-  function handleCellClick(row, col) {
-    setGrid(prevGrid => {
-      const newGrid = prevGrid.map(r => r.map(node => ({ ...node })));
+  const handleCellClick = (row, col) => {
+    setGrid(prev => {
+      const newGrid = prev.map(r => r.map(n => ({ ...n })));
       const node = newGrid[row][col];
-
       if (mode === 'start') {
-        // Remove antigo start
         if (startPos) newGrid[startPos.row][startPos.col].isStart = false;
         node.isStart = true;
         setStartPos({ row, col });
@@ -60,20 +51,15 @@ function App() {
         node.isEnd = true;
         setEndPos({ row, col });
       } else if (mode === 'wall') {
-        // Toggle parede
-        if (!node.isStart && !node.isEnd) {
-          node.isWall = !node.isWall;
-        }
+        if (!node.isStart && !node.isEnd) node.isWall = !node.isWall;
       }
-
       return newGrid;
     });
-  }
+  };
 
-  // Limpa marcações de busca e caminho
-  function clearPath() {
-    setGrid(prevGrid =>
-      prevGrid.map(row =>
+  const clearPath = () => {
+    setGrid(prev =>
+      prev.map(row =>
         row.map(node => ({
           ...node,
           isVisited: false,
@@ -87,15 +73,13 @@ function App() {
     );
     setDijkstraResult(null);
     setAstarResult(null);
-  }
+  };
 
-  // Animação de nós visitados e caminho
-  function animate(visitedNodes, pathNodes) {
-    // Visitação
-    visitedNodes.forEach((node, i) => {
+  const animate = (visited, path, callback) => {
+    visited.forEach((node, i) => {
       setTimeout(() => {
-        setGrid(prevGrid =>
-          prevGrid.map(row =>
+        setGrid(prev =>
+          prev.map(row =>
             row.map(cell =>
               cell.row === node.row && cell.col === node.col && !cell.isStart && !cell.isEnd
                 ? { ...cell, isVisited: true }
@@ -105,12 +89,11 @@ function App() {
         );
       }, 20 * i);
     });
-    // Caminho final
-    const delay = 20 * visitedNodes.length;
-    pathNodes.forEach((node, j) => {
+    const visitDelay = 20 * visited.length;
+    path.forEach((node, j) => {
       setTimeout(() => {
-        setGrid(prevGrid =>
-          prevGrid.map(row =>
+        setGrid(prev =>
+          prev.map(row =>
             row.map(cell =>
               cell.row === node.row && cell.col === node.col && !cell.isStart && !cell.isEnd
                 ? { ...cell, isPath: true }
@@ -118,74 +101,66 @@ function App() {
             )
           )
         );
-      }, delay + 50 * j);
+      }, visitDelay + 50 * j);
     });
-  }
+    // Call callback after full animation
+    if (callback) {
+      const totalDelay = visitDelay + 50 * path.length;
+      setTimeout(callback, totalDelay);
+    }
+  };
 
-  // Executa Dijkstra
-  function visualizeDijkstra() {
+  const visualizeDijkstra = () => {
     if (!startPos || !endPos) return;
     clearPath();
-    const gridCopy = grid.map(row => row.map(node => ({ ...node })));
+    const gridCopy = grid.map(row => row.map(n => ({ ...n })));
     const startNode = gridCopy[startPos.row][startPos.col];
     const endNode = gridCopy[endPos.row][endPos.col];
-
-    const startTime = performance.now();
     const visited = dijkstra(gridCopy, startNode, endNode);
     const path = reconstructPath(endNode);
-    const endTime = performance.now();
-
-    setDijkstraResult({
-      time: (endTime - startTime).toFixed(2),
-      visited: visited.length,
-      pathLength: path.length,
+    // Executa animação e só então define resultados
+    animate(visited, path, () => {
+      const time = (visited.length + path.length).toFixed(2); // opcional calcular real tempo
+      setDijkstraResult({
+        time: '---', // ou medir separadamente
+        visited: visited.length,
+        pathLength: path.length,
+      });
     });
-    animate(visited, path);
-  }
+  };
 
-  // Executa A*
-  function visualizeAstar() {
+  const visualizeAstar = () => {
     if (!startPos || !endPos) return;
     clearPath();
-    const gridCopy = grid.map(row => row.map(node => ({ ...node })));
+    const gridCopy = grid.map(row => row.map(n => ({ ...n })));
     const startNode = gridCopy[startPos.row][startPos.col];
     const endNode = gridCopy[endPos.row][endPos.col];
-
-    const startTime = performance.now();
     const visited = astar(gridCopy, startNode, endNode);
     const path = reconstructPath(endNode);
-    const endTime = performance.now();
-
-    setAstarResult({
-      time: (endTime - startTime).toFixed(2),
-      visited: visited.length,
-      pathLength: path.length,
+    animate(visited, path, () => {
+      setAstarResult({
+        time: '---',
+        visited: visited.length,
+        pathLength: path.length,
+      });
     });
-    animate(visited, path);
-  }
+  };
 
-  // Reset completo
-  function resetGrid() {
-    setGrid(initializeGrid());
+  const resetGrid = () => {
+    setGrid(initGrid());
     setStartPos(null);
     setEndPos(null);
     setDijkstraResult(null);
     setAstarResult(null);
-  }
+  };
 
   return (
     <div className="App">
-      <h1>Visualizador de Pathfinding (Dijkstra vs A*)</h1>
+      <h1>Visualizador de Pathfinding</h1>
       <div className="controls">
-        <button className={mode === 'start' ? 'selected' : ''} onClick={() => setMode('start')}>
-          Definir Início
-        </button>
-        <button className={mode === 'end' ? 'selected' : ''} onClick={() => setMode('end')}>
-          Definir Fim
-        </button>
-        <button className={mode === 'wall' ? 'selected' : ''} onClick={() => setMode('wall')}>
-          Obstáculos
-        </button>
+        <button className={mode === 'start' ? 'selected' : ''} onClick={() => setMode('start')}>Definir Início</button>
+        <button className={mode === 'end' ? 'selected' : ''} onClick={() => setMode('end')}>Definir Fim</button>
+        <button className={mode === 'wall' ? 'selected' : ''} onClick={() => setMode('wall')}>Obstáculos</button>
         <button onClick={visualizeDijkstra}>Executar Dijkstra</button>
         <button onClick={visualizeAstar}>Executar A*</button>
         <button onClick={resetGrid}>Resetar Grid</button>
@@ -194,31 +169,21 @@ function App() {
         {dijkstraResult && (
           <div>
             <h3>Dijkstra:</h3>
-            <p>Tempo: {dijkstraResult.time} ms | Nós visitados: {dijkstraResult.visited} | Comprimento do caminho: {dijkstraResult.pathLength}</p>
+            <p>Nós visitados: {dijkstraResult.visited} | Comprimento do caminho: {dijkstraResult.pathLength}</p>
           </div>
         )}
         {astarResult && (
           <div>
             <h3>A*:</h3>
-            <p>Tempo: {astarResult.time} ms | Nós visitados: {astarResult.visited} | Comprimento do caminho: {astarResult.pathLength}</p>
+            <p>Nós visitados: {astarResult.visited} | Comprimento do caminho: {astarResult.pathLength}</p>
           </div>
         )}
       </div>
       <div className="grid">
-        {grid.map((row, rowIdx) => (
-          <div key={rowIdx} className="grid-row">
+        {grid.map((row, i) => (
+          <div key={i} className="grid-row">
             {row.map(node => (
-              <Node
-                key={`${node.row}-${node.col}`}
-                row={node.row}
-                col={node.col}
-                isStart={node.isStart}
-                isEnd={node.isEnd}
-                isWall={node.isWall}
-                isVisited={node.isVisited}
-                isPath={node.isPath}
-                onClick={handleCellClick}
-              />
+              <Node key={`${node.row}-${node.col}`} {...node} onClick={handleCellClick} />
             ))}
           </div>
         ))}
