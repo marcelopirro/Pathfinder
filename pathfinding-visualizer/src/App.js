@@ -156,26 +156,32 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Visualizador de Pathfinding</h1>
+      <h1>Pathfinding Viewer</h1>
+      <h3>Instructions</h3>
+      <p>
+        Begin by selecting the <strong>start node</strong> and the <strong>end node</strong>. 
+        The algorithm will not run unless both nodes are defined.
+        Optionally, you can add <strong>blocking nodes</strong> to create obstacles.
+      </p>
       <div className="controls">
-        <button className={mode === 'start' ? 'selected' : ''} onClick={() => setMode('start')}>Definir Início</button>
-        <button className={mode === 'end' ? 'selected' : ''} onClick={() => setMode('end')}>Definir Fim</button>
-        <button className={mode === 'wall' ? 'selected' : ''} onClick={() => setMode('wall')}>Obstáculos</button>
-        <button onClick={visualizeDijkstra}>Executar Dijkstra</button>
-        <button onClick={visualizeAstar}>Executar A*</button>
-        <button onClick={resetGrid}>Resetar Grid</button>
+        <button className={mode === 'start' ? 'selected' : ''} onClick={() => setMode('start')}>Set Start</button>
+        <button className={mode === 'end' ? 'selected' : ''} onClick={() => setMode('end')}>Set End</button>
+        <button className={mode === 'wall' ? 'selected' : ''} onClick={() => setMode('wall')}>Set Obstacles</button>
+        <button onClick={visualizeDijkstra}>Run Dijkstra</button>
+        <button onClick={visualizeAstar}>Run A*</button>
+        <button onClick={resetGrid}>Reset Grid</button>
       </div>
       <div className="metrics">
         {dijkstraResult && (
-          <div>
-            <h3>Dijkstra:</h3>
-            <p>Nós visitados: {dijkstraResult.visited} | Comprimento do caminho: {dijkstraResult.pathLength}</p>
+          <div class="result-container">
+            <h3>Dijkstra</h3>
+            <p>Visited nodes: {dijkstraResult.visited} | Path length: {dijkstraResult.pathLength}</p>
           </div>
         )}
         {astarResult && (
-          <div>
-            <h3>A*:</h3>
-            <p>Nós visitados: {astarResult.visited} | Comprimento do caminho: {astarResult.pathLength}</p>
+          <div class="result-container">
+            <h3>A*</h3>
+            <p>Visited nodes: {astarResult.visited} | Path length: {astarResult.pathLength}</p>
           </div>
         )}
       </div>

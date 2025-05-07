@@ -21,10 +21,10 @@
   }
   
   .node-visited {
-    background-color: lightblue;
+    background-color: lightgrey;
   }
   
   .node-path {
-    background-color: yellow;
+    background-color: orange;
   }
   
