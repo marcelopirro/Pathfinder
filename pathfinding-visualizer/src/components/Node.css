@@ -1,0 +1,30 @@
+/* src/components/Node.css */
+
+.node {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ccc;
+    margin: 1px;
+    transition: background-color 0.2s;
+  }
+  
+  .node-start {
+    background-color: green;
+  }
+  
+  .node-end {
+    background-color: red;
+  }
+  
+  .node-wall {
+    background-color: black;
+  }
+  
+  .node-visited {
+    background-color: lightblue;
+  }
+  
+  .node-path {
+    background-color: yellow;
+  }
+  
