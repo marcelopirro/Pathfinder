@@ -1,29 +1,29 @@
 # Pathfinding Visualizer
 
-Este projeto utiliza React para visualizar a execução dos algoritmos de pathfinding, como o **Dijkstra** e o **A\***. O objetivo é proporcionar uma maneira interativa de entender como esses algoritmos funcionam na busca pelo caminho mais curto.
+This project uses React to visualize the execution of pathfinding algorithms like Dijkstra and A\*. The goal is to provide an interactive way to understand how these algorithms work in finding the shortest path.
 
-## Como Começar
+## Getting Started
 
-1. **Clone o repositório:**
+1. **Clone the repository:**
 
-   Se você ainda não tem o repositório em seu computador, clone-o com o seguinte comando:
+   If you don’t have the repository on your computer yet, clone it using the following command:
 
    ```git clone https://link-do-repositorio.git```
    
-2. Entre na pasta pathfinding-visualizer:
+2. Enter the pathfinding-visualizer folder::
 
-	Navegue para o diretório do projeto com:
+	Navigate to the project directory with:
 
 	```cd pathfinding-visualizer```
 	
-3. Instale as dependências:
+3. Install dependencies:
 
-	Para instalar as dependências necessárias, use o comando:
+	To install the necessary dependencies, use the command:
 	
 	```npm install```
 	
-4. Inicie o servidor de desenvolvimento:
+4. Start the development server:
 
-	Após as dependências serem instaladas, inicie o servidor de desenvolvimento com:
+	Once the dependencies are installed, start the development server with:
 	
 	```npm start```
